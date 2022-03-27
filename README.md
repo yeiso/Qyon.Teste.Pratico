@@ -1,38 +1,23 @@
-## Tarefa pratica e logica:
+## Alterações realizadas
 
-- Fazer um fork do projeto, para o seu github, criar uma branche nova com seu nome para iniciar o teste pratico
+## Backend
 
-## Backend 
+- Criada a tabela de movimentações, o arquivo de migrate e foreign key relacionando com a tabela banks.
 
-- Corrija alguns erros que existem dentro da api e a deixe funcional
-- Crie uma tabela de movimentações financeiras e seu crud (Index,show,update,store e delete) correspondente gerenciando as informações pertinentes a um histórico de movimentações que se relaione com a tabela banks
-- Crie uma rota que receba o número da conta e retorne suas respectivas movimentações, ordenadas por data descrescente 
-- Crie um mecanismo de autenticação com as ferramentas necessárias e exija um token válido no header para o acesso as demais rotas do sistema (opcional)
+- Criada todas as rotas de visualização, atualização e delete da tabela de movimentações e a rota que lista todas as transações de uma conta especifica.
 
+- Validações nos metodos de update, create e delete evitando que sejam realizadas transações e atualizações que deixem a conta com saldo negativo.
 
-# Extra / Opcionais
+- Ao realizar update em movimentações, é realizado o processo para desfazer a movimentação anterior, seja na conta atual ou em outra conta envolvida. O mesmo processo é realizado ao apagar as movimentações.   
 
-- Principios de código limpo (S.O.L.I.D)
-- Desacoplamento
-- Arquitetura em camadas (ou Hexagonal)
-- Testes unitários.
-- Ambiente docker
-- Crie uma documentação para o projeto no readme 
+- Arquivo de ambiente do Insomnia incluso na pasta /backend. (Insomnia_2022-03-27.json).
 
-## Front-end
-- Listar contas e seus respectivos saldos e, em uma segunda tela o extrato bancário de um banco selecionado na tela anterior 
-- Os dados devem preferencialmente ser consumidos da API da etapa anterior, mas, caso ela não tenha sido concluída pode-se utilizar um array
-- Exibir dados do extrato em ordem cronológica;
-- Organizar o código de forma que as responsabilidades fiquem separadas;
+## Frontend
 
-# Extra / Opcionais
+- Versão do React atualizada para remover vunerabilidades de dependencias.
 
-- Material UI
-- Styled-Components
-- Hooks (useEffect, useContext, useCallback, useState)
-- Clean code
+- Utilização do NextJS, Material UI.
 
+- Criado os Hooks.
 
-## Envio do Desafio
-
-O repositório deve ser privado e o convite de acesso e informações relevantes devem ser enviados para os emails [**guilherme.andreoti@qyon.com**] e [**gustavo.santarosa@qyon.com**] com o assunto **Desafio Qyon**
+- Criada as duas telas para listagem de contas e de movimentações da mesma. (Index: lista todas as contas | transferencias/[id]: lista as movimentações).

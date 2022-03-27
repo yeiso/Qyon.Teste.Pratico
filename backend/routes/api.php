@@ -23,11 +23,18 @@ Route::get('/', function () {
 });
 
 Route::prefix('banco')->group(function () {
-    Route::get('/',          'Api\\bankController@index')     ->name('allBanks');
-    Route::get('/{id}',      'Api\\bankController@show')      ->name('showBank');
-    Route::post('/',         'Api\\bankController@store')     ->name('storeBank');
-    Route::put('/{id}',      'Api\\bankController@update')    ->name('updateBank');
-    Route::delete('/{id}',   'Api\\bankController@destroy')   ->name('deleteBank');
+    Route::get('/',          'Api\\bankController@index')->name('allBanks');
+    Route::get('/{id}',      'Api\\bankController@show')->name('showBank');
+    Route::post('/',         'Api\\bankController@store')->name('storeBank');
+    Route::put('/{id}',      'Api\\bankController@update')->name('updateBank');
+    Route::delete('/{id}',   'Api\\bankController@destroy')->name('deleteBank');
 
     Route::post('release/',  'Api\\bankController@addRelease')->name('storeBank');
+});
+
+Route::prefix('transferencia')->group(function () {
+    Route::get('/', 'Api\\TransferController@index');
+    Route::get('/{conta_id}', 'Api\\TransferController@show');
+    Route::put('/{id}', 'Api\\TransferController@update');
+    Route::delete('/{id}', 'Api\\TransferController@destroy');
 });

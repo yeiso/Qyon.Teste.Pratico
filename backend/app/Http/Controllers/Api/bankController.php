@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\bank;
 use Illuminate\Http\Request;
 use App\API\ApiError;
+use App\Models\Transfer;
 
 class bankController extends Controller
 {
 
     private $bank;
 
-    public function __construct(Bank $bank){
+    public function __construct(Bank $bank)
+    {
         $this->bank = $bank;
     }
 
@@ -35,24 +37,23 @@ class bankController extends Controller
     public function store(Request $request)
     {
 
-        try{
+        try {
             $bankData = $request->all();
-            if(Bank::select()->where('conta','=',$request->conta)->first()){
+            if (Bank::select()->where('conta', '=', $request->conta)->first()) {
                 return response()->json(ApiError::errorMessage("A conta {$request->conta} ja existe!", 1040), 500);
             }
 
             $this->bank->create($bankData);
 
             $return = [
-                "data"=> [
+                "data" => [
                     "msg" => "A conta {$request->conta} foi criada com sucesso!"
                 ]
             ];
 
             return response()->json($return, 201);
-
-        } catch(\Exception $e){
-            if(config('app.debug')){
+        } catch (\Exception $e) {
+            if (config('app.debug')) {
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
             }
 
@@ -69,7 +70,7 @@ class bankController extends Controller
     public function show($id)
     {
         $bank = $this->bank->find($id);
-        if(!$bank){
+        if (!$bank) {
             return response()->json(ApiError::errorMessage('Conta não encontrada!', 4040), 404);
         }
 
@@ -89,22 +90,21 @@ class bankController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try{
+        try {
             $bankData    = $request->all();
             $bank        = $this->bank->find($id);
 
             $bank->update($bankData);
 
-                $return = [
-                    'data'=> [
-                        'msg' => 'Conta alterada com sucesso!'
-                    ]
-                ];
+            $return = [
+                'data' => [
+                    'msg' => 'Conta alterada com sucesso!'
+                ]
+            ];
 
             return response()->json($return, 201);
-
-        } catch(\Exception $e){
-            if(config('app.debug')){
+        } catch (\Exception $e) {
+            if (config('app.debug')) {
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
             }
 
@@ -117,47 +117,56 @@ class bankController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\bank  $bank
+     * @param  \App\Models\transfer  $transfer
      * @return \Illuminate\Http\Response
      */
     public function addRelease(Request $request)
     {
-        try{
-            if(!$request->conta_id){
+        try {
+            if (!$request->conta_id) {
                 return response()->json(ApiError::errorMessage("conta_id não informada!", 1030), 500);
             }
 
-            if(!$request->movimento){
+            if (!$request->movimento) {
                 return response()->json(ApiError::errorMessage("movimento não informado!", 1030), 500);
             }
 
             $bank =  $this->bank->find($request->conta_id);
-                if(!$bank){
-                    return response()->json(ApiError::errorMessage("Conta não localizada com a conta_id {$request->conta_id}!", 1030), 500);
-                }
-
-            $total_anterior=$bank->total;
-
-            if($request->movimento == "deposit"){
-                $bank->total = $bank->total+$request->valor;
+            if (!$bank) {
+                return response()->json(ApiError::errorMessage("Conta não localizada com a conta_id {$request->conta_id}!", 1030), 500);
             }
 
-            if($request->movimento == "withdraw"){
-                $bank->total = $bank->total-$request->valor;
+            $total_anterior = $bank->total;
+
+            if ($request->movimento == "deposit") {
+                $bank->total = $bank->total + $request->valor;
             }
 
+            if ($request->movimento == "withdraw") {               
+                if($bank->total - $request->valor < 0){
+                    return response()->json(ApiError::errorMessage("Saldo insuficiente! Saldo atual de $ {$bank->total}", 1030), 500);
+            };
+                $bank->total = $bank->total - $request->valor;
+
+            }
+
+            $transfer = new Transfer();
+            $transfer->conta_id = $request->conta_id;
+            $transfer->valor = $request->valor;
+            $transfer->movimento = $request->movimento;
 
             $bank->save();
+            $transfer->save();
 
-                $return = [
-                    'data'=> [
-                        'msg' => "{$request->movimento} realizado. Total anterior:{$total_anterior}. Valor Movimentado:{$request->valor}. Total Atual:{$bank->total}."
-                    ]
-                ];
+            $return = [
+                'data' => [
+                    'msg' => "{$request->movimento} realizado. Total anterior:{$total_anterior}. Valor Movimentado:{$request->valor}. Total Atual:{$bank->total}."
+                ]
+            ];
 
             return response()->json($return, 201);
-
-        } catch(\Exception $e){
-            if(config('app.debug')){
+        } catch (\Exception $e) {
+            if (config('app.debug')) {
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
             }
 
@@ -173,17 +182,16 @@ class bankController extends Controller
      */
     public function destroy(bank $id)
     {
-        try{
+        try {
             $id->delete();
 
             return response()->json([
                 'data' => [
-                    'msg' => 'Conta: '.$id->id.' removido com sucesso!'
+                    'msg' => 'Conta: ' . $id->id . ' removido com sucesso!'
                 ]
-            ],200);
-
-        }catch(\Exception $e){
-            if(config('app.debug')){
+            ], 200);
+        } catch (\Exception $e) {
+            if (config('app.debug')) {
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
             }
 
